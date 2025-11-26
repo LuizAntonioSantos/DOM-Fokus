@@ -11,14 +11,18 @@ const audioPlay = new Audio('/sons/play.wav');
 const audioPausa = new Audio('/sons/pause.mp3');
 const audioTempoFinalizado = new Audio('./sons/beep.mp3')
 const startPauseBt = document.querySelector('#start-pause');
-let tempoDeCorridoEmSegundos = 5;
+const iniciarOuPausarBt = document.querySelector('#start-pause span')
+const iniciarOuPausarBtIcone = document.querySelector(".app__card-primary-butto-icon")
+const tempoNaTela = document.querySelector('#timer')
+let tempoDeCorridoEmSegundos = 1500;
 let intervaloId = null;
 
 function alterarContexto(contexto) {
-    html.setAttribute('data-contexto', contexto)
+    mostrarTempo()
     botoes.forEach((contexto) => {
         contexto.classList.remove('active')
     })
+    html.setAttribute('data-contexto', contexto)
     banner.setAttribute('src', `/imagens/${contexto}.png`) // quando colocar um parametro dentro de uma string, usar crase (` `) e ${parametro}
     switch (contexto) {
         case 'foco':
@@ -44,22 +48,32 @@ function inciarOuPausar() {
     }
     audioPlay.play();
     intervaloId = setInterval(contagemRegressiva, 1000);
+    inciarOuPausar.textContent = "Pausar"
+    inciarOuPausarBtIcone.setAttribute('src', `/imagens/pause.png`)
 }
 
 function zerar() {
     clearInterval(intervaloId);
+    inciarOuPausar.textContent = "Começar"
+    inciarOuPausarBtIcone.setAttribute('src', `/imagens/play_arrow.png`)
     intervaloId = null;
 }
 
+function mostrarTempo() {
+    const tempo = new Date(tempoDecorridoEmSegundos * 1000)
+    const tempoFormatado = tempo.toLocaleTimeString('pt-Br', { minute: '2-digit', second: '2-digit' })
+    tempoNaTela.innerHTML = `${tempoFormatado}`
+}
+
 const contagemRegressiva = () => {
-    if (tempoDeCorridoEmSegundos === 0) {
+    if (tempoDeCorridoEmSegundos <= 0) {
         audioTempoFinalizado.play()
-        zerar();
         alert('O tempo acabou!');
+        zerar();
         return;
     }
     tempoDeCorridoEmSegundos -= 1;
-    console.log(tempoDeCorridoEmSegundos);
+    mostrarTempo()
 
 }
 
@@ -76,16 +90,21 @@ musicaFocoInput.addEventListener('change', () => {
 });
 
 focoBt.addEventListener('click', () => {
+    tempoDeCorridoEmSegundos = 1500
     alterarContexto('foco')
     focoBt.classList.add('active')
 });
 
 curtoBt.addEventListener('click', () => {
+    tempoDeCorridoEmSegundos = 300
     alterarContexto('descanso-curto')
     curtoBt.classList.add('active')
 });
 
 longoBt.addEventListener('click', () => {
+    tempoDeCorridoEmSegundos = 900
     alterarContexto('descanso-longo')
     longoBt.classList.add('active')
 });
+
+mostrarTempo()
